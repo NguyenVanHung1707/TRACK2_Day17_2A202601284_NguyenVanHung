@@ -63,27 +63,37 @@ def main() -> int:
     n_src = len(list(SRC.glob("*.parquet")))
     print(f"  nguồn : {SRC}  ({n_src:,} file)")
 
-    # TODO(nhiệm vụ 4): hiện thực khung COPY ... TO ... ở phần docstring.
-    #
-    #   con.execute(f"""
-    #       copy (
-    #           select * from read_parquet('{SRC}/*.parquet')
-    #           order by ...
-    #       ) to '{DST}' (
-    #           format parquet,
-    #           partition_by (...),
-    #           overwrite_or_ignore,
-    #           row_group_size ...
-    #       )
-    #   """)
-    #
-    # Sau đó kiểm tra không mất hàng nào:
-    #
-    #   assert <số row dataset cũ> == <số row dataset mới>
+    # Xóa thư mục đích cũ nếu có để ghi mới sạch sẽ
+    if DST.exists():
+        import shutil
+        shutil.rmtree(DST)
 
-    print("\n  tools/compact.py chưa được hiện thực — đây là nhiệm vụ 4.")
-    print("  Mở file này, đọc phần KHUNG THỰC HIỆN ở đầu file và điền vào TODO.")
-    print("  Hướng dẫn từng bước: GUIDE.md mục 4.\n")
+    # COPY ... TO ... với layout tối ưu:
+    # 1. PARTITION_BY (event_date): Tạo 14 thư mục ngày, giúp engine prune file khi lọc theo ngày.
+    # 2. ORDER BY customer_name, event_time: Gom dữ liệu từng khách hàng liền kề nhau.
+    # 3. ROW_GROUP_SIZE 1000: Chia nhỏ row groups để min/max statistics của customer_name có hiệu quả cao.
+    con.execute(f"""
+        copy (
+            select *
+            from read_parquet('{SRC}/*.parquet')
+            order by customer_name, event_time
+        ) to '{DST}' (
+            format parquet,
+            partition_by (event_date),
+            overwrite_or_ignore,
+            row_group_size 1000
+        )
+    """)
+
+    n_dst = len(list(DST.glob("*/*.parquet")))
+    print(f"  đích  : {DST}  ({n_dst:,} file)")
+
+    # Kiểm tra không mất hàng nào
+    src_rows = con.execute(f"select count(*) from read_parquet('{SRC}/*.parquet')").fetchone()[0]
+    dst_rows = con.execute(f"select count(*) from read_parquet('{DST}/*/*.parquet')").fetchone()[0]
+    assert src_rows == dst_rows, f"Lệch số hàng: nguồn {src_rows} ≠ đích {dst_rows}"
+    print(f"  tổng số hàng: {dst_rows:,} (khớp 100%)\n")
+    con.close()
     return 0
 
 
