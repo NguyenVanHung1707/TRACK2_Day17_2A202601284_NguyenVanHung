@@ -1,6 +1,6 @@
 # 📋 CHECKLIST THỰC HIỆN LAB 17 — DATA PIPELINE ENGINEERING
 
-**Học viên:** Nguyễn Văn Hùng | **Mã học viên:** 2A202601284 | **Lớp:** AICB-P2T2 | **Ngày:** 17/08/2026
+**Học viên:** Nguyễn Văn Hưng | **Mã học viên:** 2A202601284 | **Lớp:** AICB-P2T2 | **Ngày:** 17/08/2026
 
 ---
 

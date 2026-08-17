@@ -1,6 +1,6 @@
 # Báo cáo LAB 17 — Data Pipeline Engineering
 
-**Họ tên:** Nguyễn Văn Hùng  **Lớp:** AICB-P2T2  **Mã học viên:** 2A202601284  **Ngày:** 17/08/2026
+**Họ tên:** Nguyễn Văn Hưng  **Lớp:** AICB-P2T2  **Mã học viên:** 2A202601284  **Ngày:** 17/08/2026
 
 ---
 
